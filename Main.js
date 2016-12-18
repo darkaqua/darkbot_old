@@ -16,7 +16,7 @@ bot.on('ready', () => {
     console.log('Here we go! ❤');
 });
 
-/**
+/**a
  * @deprecated Usado para debug
  */
 function delete100Messages(){
@@ -45,6 +45,7 @@ bot.on('message', message => {
     } else if(!message.author.bot){
         if(message.mentions.users.findKey("id", bot.user.id) != null){
             message.reply(" lo siento, aún no puedo hacer nada..!");
+            message.reply("Ayudame a mejorar con tu aportación... https://github.com/darkaqua/darkbot");
         }
     }
 });
