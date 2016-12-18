@@ -52,7 +52,6 @@ bot.on('message', message => {
 
 //Usuario nuevo en el servidor
 bot.on("guildMemberAdd", guildMemberAdd => {
-    console.log(guildMemberAdd);
     const channel = bot.channels.find("name", "bienvenida");
     channel.sendMessage(guildMemberAdd + " se ha unido al servidor!");
     console.log(guildMemberAdd.name + " se ha unido al servidor!");
