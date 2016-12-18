@@ -7,7 +7,9 @@ const Discord = require('discord.js');
 
 const commands = require("./Commands");
 
-const bot = new Discord.Client();
+const bot = new Discord.Client({
+    fetchAllMembers: true
+});
 const token = fs.readFileSync("token.txt", 'utf8');
 
 bot.on('ready', () => {
@@ -33,9 +35,13 @@ function delete100Messages(){
 bot.on('message', message => {
     // console.log(bot.permissions);//member.roles.findKey("name", "adm")
     if(message.content.startsWith("!")) {
-        const command = message.content.split(" ")[0];
-        if(commands.has(command))
-            commands.get(command)(message)
+
+        //Comando para ejecutar
+        const command = commands.list[message.content.split(" ")[0]];
+        if(command && commands.hasPermission(command, message.member)) {
+            command.exec(message);
+        }
+
     } else if(!message.author.bot){
         if(message.mentions.users.findKey("id", bot.user.id) != null){
             message.reply(" lo siento, aún no puedo hacer nada..!");
