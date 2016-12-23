@@ -21,6 +21,7 @@ const lastVersion = process.argv[4];
 
 const Logger = require("./Logger");
 const logger = new Logger("out.log");
+const log_template = fs.readFileSync("log_template.html","utf8");
 
 if(!port || !currentVersion) {
     console.log("Usage: node Main.js port version [last_version]");
@@ -29,8 +30,29 @@ if(!port || !currentVersion) {
 
 http.createServer(function (req, res) {
     handler(req, res, function (err) {
-        res.statusCode = 202;
-        res.end('no such location');
+        /*
+            Modified by MagicInventor (http://magicinventor.xyz) on 23/12/2016
+            TODO:
+            - https
+            - mejorar interface
+            - cpanel (detener, apagar y reinciar bot)
+            - ver mensajes desde el cpanel
+
+            añadir al config.json 
+            "http_password": "hola123",
+        */
+
+        if(req.url == "/" + config['http_password']) {
+            res.statusCode = 200;
+            fs.readFile("out.log", "utf8", function (err,data) {
+                res.writeHead(200, {'Content-Type': 'text/html'});
+                res.end(log_template.replace("%LOGS%", data));
+            });
+        } else {
+            res.statusCode = 404;
+            res.end("and the password?");
+        }
+
     });
 }).listen(port);
 
