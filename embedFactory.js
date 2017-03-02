@@ -11,5 +11,18 @@ exports.createEmbed = function(message) {
             "text": "#" + message.channel.name
         }
     };
+    let img = (() => {
+        let att;
+        message.attachments.forEach((val) => {
+            if(val.width && !att) {
+                att = val;
+            }
+        });
+        return att;
+    })();
+    if(img) {
+        embed["image"] = {};
+        embed["image"]["url"] = img.url;
+    }
     return embed;
 }
