@@ -68,11 +68,7 @@ handler.on("release", (event) => {
     embed.setURL(event.payload.release["html_url"]);
     embed.addField(event.payload.release["name"], event.payload.release["body"]);
     embed.setTimestamp(event.payload.release["published_at"]);
-    if(event.payload.release["prerelease"] === true){
-      embed.setFooter("pre-release");
-    }else {
-      embed.setFooter("release");
-    }
+    embed.setFooter(event.payload.release["prerelease"] ? "pre-release" : "release");
     getChannel('darkbot_project').sendEmbed(embed);
 
     e.bot.user.setStatus("idle")
@@ -96,7 +92,7 @@ handler.on("release", (event) => {
     logger.message("New version spawned.");
     setTimeout(() =>{ //Previene que termine el proceso antes de enviar el embed
       process.exit();
-    }, 2000);
+    }, 4000);
 });
 
 //Delete last version when this one is already running.
