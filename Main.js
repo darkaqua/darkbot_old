@@ -59,18 +59,6 @@ handler.on("release", (event) => {
     e.bot.user.setGame(`actualizando a ${newVersion}...`)
         .then()
         .catch(logger.error);
-
-    //Envía un embed a #darkbot_project con la info de la actualización
-    let embed = new Discord.RichEmbed();
-    getChannel('darkbot_project').sendMessage("Actualizando...");
-    embed.setTitle("v" + newVersion);
-    embed.setColor("#2691b3");
-    embed.setURL(event.payload.release["html_url"]);
-    embed.addField(event.payload.release["name"], event.payload.release["body"]);
-    embed.setTimestamp(event.payload.release["published_at"]);
-    embed.setFooter(event.payload.release["prerelease"] ? "pre-release" : "release");
-    getChannel('darkbot_project').sendEmbed(embed);
-
     e.bot.user.setStatus("idle")
         .then()
         .catch(logger.error);
@@ -90,25 +78,46 @@ handler.on("release", (event) => {
     const newPort = (e.port === 7777) ? 7778 : 7777;
     child_process.spawn("node", ["Main.js", newPort, newVersion, e.currentVersion], { detached: true, stdio: ["ignore", outs, errs] });
     logger.message("New version spawned.");
-    setTimeout(() =>{ //Previene que termine el proceso antes de enviar el embed
-      process.exit();
-    }, 4000);
+    process.exit();
 });
 
 //Delete last version when this one is already running.
-if(e.lastVersion) {
-    try {
-        child_process.execSync(`rm -rf ../${e.lastVersion}`);
-        logger.message("Last version deleted correctly.")
-    } catch(e) {
-        logger.error(`Error deleting last version: ${e}`)
-    }
-  e.bot.on('ready', () => { //Espera a la conexión con Discord para avisar que teminó la actualización
-      let dk_pj_channel = getChannel('darkbot_project');
-      if(dk_pj_channel !== null)
-      dk_pj_channel.sendMessage("***Actualizado***");
-  });
-}
+e.bot.on('ready', () => {
+  if(e.lastVersion) {
+      try {
+          child_process.execSync(`rm -rf ../${e.lastVersion}`);
+          logger.message("Last version deleted correctly.")
+      } catch(e) {
+          logger.error(`Error deleting last version: ${e}`)
+      }
+      //Envía un embed a #darkbot_project con la info de la actualización.
+      //(Cualquier parecido con el código de @McMacker4 es mera coincidencia)
+      let options = {
+          hostname: "api.github.com",
+          path: `/repos/darkaqua/darkbot/releases/tags/${e.currentVersion}`,
+          headers: { "User-Agent": "darkaqua-darkbot" }
+      };
+      let req = https.request(options, (res) => {
+          let data = "";
+          res.on("data", chunk => { data += chunk; });
+          res.on("end", () => {
+              if(res.statusCode !== 404) {
+                  let release = JSON.parse(data);
+                  let embed = new Discord.RichEmbed({ timestamp: release["created_at"] });
+                  embed.setTitle(`v${e.currentVersion}`)
+                      .setURL(release["html_url"])
+                      .addField((release["name"] ? release["name"] : `v${e.currentVersion}`), (release["body"] ? release["body"] : "No description provided."))
+                      .setColor("#2691b3")
+                      .setFooter(release["prerelease"] ? "pre-realease" : "release");
+                      getChannel('darkbot_project').sendMessage("***Actualizado***");
+                  getChannel('darkbot_project').sendEmbed(embed);
+              }
+          });
+      });
+      req.on("error", (err) => { logger.error('Request Error:' + err.message) });
+      req.end();
+  }
+});
 
 //Llamada a los eventos del bot
 require('./BotEvents')(e);
