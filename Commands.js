@@ -9,6 +9,7 @@ const embedFactory = require("./embedFactory.js");
 const Discord = require("discord.js");
 
 const statuses = ["online", "idle", "invisible", "dnd"];
+const special = ["[admin]", "[sub-admin]", "[project]", "[bot]", "[darkbot coder]", "tercer componente de Daft Punk"]; //Roles asignados de manera especial
 
 const commands = {
     list: {
@@ -79,6 +80,33 @@ const commands = {
                 let date = new Date();
 
                 message.author.sendMessage("La fecha es `" + date.getDate() + "/" + date.getMonth() + "/" + date.getFullYear() + "` en este servidor.");
+                message.delete();
+            }
+        },
+        "!rol": {
+            whatdo: "Te asigna o elimina de un rol.",
+            roles: ["@everyone"],
+            exec: (message) => {
+              let args = message.content.split(" ");
+              let roleName = args[2].replace("_", " ");
+              let rol = (() => {
+                  return args[2] ? message.guild.roles.findKey("name", roleName) : "";
+              })();
+              if (rol) {
+                if(special.includes(roleName)) {
+                  message.author.sendMessage("No puedes escojer ese rol :thinking:");
+                } else if (args[1] == "join") {
+                    message.member.addRole(rol);
+                    message.author.sendMessage(`Te has unido a ${roleName}`);
+                } else if (args[1] == "leave") {
+                  message.member.removeRole(rol);
+                  message.author.sendMessage(`Has salido de ${roleName}`);
+                } else {
+                  message.author.sendMessage("Tienes que usar `!rol join/leave " + roleName + "`");
+                }
+              } else {
+                message.author.sendMessage("Ha ocurrido un error, asegurate de usar `!rol join/leave [nombre]` y escribir bien el nombre del rol, usando `_` en lugar de espacios.");
+              }
                 message.delete();
             }
         },
