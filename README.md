@@ -10,6 +10,7 @@ Si quieres colaborar en el proyecto unete a nuestro discord
 
 http://darkaqua.net
 
-###Palabras prohibidas
-- require(`./Main`)
-- function
+###Cosas prohibidas
+- require(`./Main`) 
+- function ``recomendación: 'const a = () => {}, a: () => {}'``
+- var ``recomendación: 'const, let'``
